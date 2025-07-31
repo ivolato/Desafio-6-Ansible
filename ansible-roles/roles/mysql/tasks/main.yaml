@@ -1,0 +1,84 @@
+#### INSATALAMOS MYSQL
+  - name: Instalar MariaDB (server y client)
+    ansible.builtin.apt:
+     name:
+       - mariadb-server
+       - mariadb-client
+     state: present
+     update_cache: yes
+
+  - name: habilitar el servicio de MySQL
+    ansible.builtin.systemd_service:
+      name: mariadb
+      enabled: true
+      masked: no
+
+  - name: Asegurar que MySQL/MariaDB esté iniciado y habilitado
+    ansible.builtin.service:
+      name: mysql
+      state: started
+      enabled: yes
+
+#### SECURIZAMOS MYSQL/MARIADB
+
+  - name: Verificar si root puede loguear sin contraseña (auth_socket)
+    shell: >
+      mysql -u root -e "SELECT 1;"
+    register: root_auth_test
+    ignore_errors: yes
+    changed_when: false
+
+
+  - name: Establecer contraseña y plugin si es necesario
+    community.mysql.mysql_user:
+      login_user: root
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+      name: root
+      host: localhost
+      password: raido
+      plugin: mysql_native_password
+      state: present
+      check_implicit_admin: yes
+    when: root_auth_test.rc == 0
+    
+  - name: Eliminar usuarios anónimos
+    mysql_user:
+        login_user: root
+        login_password: raido
+        name: ''
+        host_all: yes
+        state: absent
+
+  - name: Eliminar base de datos de prueba
+    mysql_db:
+        login_user: root
+        login_password: raido
+        name: test
+        state: absent
+
+  - name: Bloquear acceso root remoto
+    mysql_user:
+        login_user: root
+        login_password: raido
+        name: root
+        host: "{{ item }}"
+        state: absent
+    loop:
+        - "{{ ansible_hostname }}"
+        - "%"
+        - "::1"
+
+  - name: Recargar privilegios en MariaDB
+    community.mysql.mysql_query:
+      login_user: root
+      login_password: raido
+      query: "FLUSH PRIVILEGES;"
+
+#### CREAMOS DB PARA WORDPRES
+
+  - name: Crear base de datos para WordPress
+    community.mysql.mysql_db:
+      name: wordpress
+      state: present
+      login_user: root
+      login_password: raido

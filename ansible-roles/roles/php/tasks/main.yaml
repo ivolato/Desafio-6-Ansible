@@ -1,0 +1,72 @@
+#### INSTALAMOS APACHE
+
+- name: Install apache2
+  ansible.builtin.apt:
+      name: apache2
+      state: present
+      update_cache: yes
+
+- name: Start apache2
+  ansible.builtin.service:
+      name: apache2
+      state: started
+
+#### INSTALAMOS PHP
+- name: Instalar PHP y extensiones comunes
+  apt:
+      name:
+        - php
+        - php-common
+        - php-mysql
+        - php-xml
+        - php-xmlrpc
+        - php-curl
+        - php-gd
+        - php-imagick
+        - php-cli
+        - php-dev
+        - php-imap
+        - php-mbstring
+        - php-opcache
+        - php-soap
+        - php-zip
+        - php-intl
+        - libapache2-mod-php
+      state: present
+
+- name: Verificamos que PHP se instalo
+  shell: php -v
+  register: resultado_php
+  changed_when: false
+
+- name: mostrar resultado de verificacion de PHP
+  debug:
+     var: resultado_php.stdout_lines
+
+#### INSTALAMOS WORDPRESS
+
+- name: Descargamos WORDPRESS
+  get_url:
+    url: https://wordpress.org/latest.tar.gz
+    dest: /tmp/latest.tar.gz
+
+- name: Descomprimimos wordpress en apache
+  unarchive:
+     src: /tmp/latest.tar.gz
+     dest: /var/www/html/
+     remote_src: yes
+     extra_opts: [--strip-components=1]
+
+- name: Seteamos permisos a la carpeta
+  file:
+      path: /var/www/html/
+      state: directory
+      recurse: yes
+      owner: 'www-data'
+      group: 'www-data'
+      mode: '0755'
+
+- name: Eliminar index.html por defecto
+  file:
+      path: /var/www/html/index.html
+      state: absent
