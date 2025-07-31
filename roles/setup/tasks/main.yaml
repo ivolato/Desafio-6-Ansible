@@ -1,0 +1,5 @@
+  - name: Instalar PyMySQL en el nodo remoto
+    ansible.builtin.apt:
+     name: python3-pymysql
+     state: present
+     update_cache: yes

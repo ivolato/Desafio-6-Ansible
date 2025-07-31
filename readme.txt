@@ -1,3 +1,21 @@
+# Entorno de trabajo de Ansible con Nodos en Docker
+
+![Ansible Docker](img/image.png)
+
+## clonar repositorio
+
+```
+git clone https://github.com/yosoyfunes/ansible-server.git
+```
+
+## acceder al repositorio clonado
+
+```
+cd ansible-server
+```
+
+
+
 1) instalamos pipx en la maquina donde instalaremos ansible 
 	En ubuntu:
 
