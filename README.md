@@ -1,45 +1,40 @@
-# Entorno de trabajo de Ansible con Nodos en Docker
+# Entorno de trabajo de Ansible con AWS
 
-![Ansible Docker](img/image.png)
-
-## clonar repositorio
-
+## Clonar el repositorio.
 ```
-git clone https://github.com/yosoyfunes/ansible-server.git
+git clone https://github.com/ivolato/Desafio-6-Ansible.git
 ```
 
-## acceder al repositorio clonado
-
+## Instalamos pipx en la maquina que usaremos para gestionar con Ansible.
 ```
-cd ansible-server
+sudo apt install pipx -y
+pipx ensurepath
+```
+
+## Instalamos Ansible.
+```
+pipx install --include-deps ansible
+```
+
+## Verificamos que se instalo correctamente Ansible.
+```
+ansible --version
+```
+
+## Asignarle permisos correspondientes a la key para acceder por ssh.
+```
+cd Desafio-6-Ansible/.ssh
+chmod 600 aws.pem
+```
+
+## Testeamos la coneccion con el nodo.
+```
+ssh -i ".ssh/aws.pem" ubuntu@[DIRECCION DEL EQUIPO]
+```
+
+## Ejecutamos el Playbook.
+```
+ansible-playbook -i inventory.ini site.yaml -v
 ```
 
 
-
-1) instalamos pipx en la maquina donde instalaremos ansible 
-	En ubuntu:
-
-- sudo apt install pipx -y
-- pipx ensurepath
-
-2) Instalamos Ansible
-
-- pipx install --include-deps ansible
-
-3) Verificamos la version
-
-- ansible --version
-
-4)creamos el archivo inventory.ini 
-
-5)cambiar permisos de aws.pem
-
-- chmod 600 aws.pem
-
-6) Probamos acceder a nodo1 con la pem
-
-- ssh -i "files/.ssh/aws.pem" ubuntu@[DIRECCION DEL EQUIPO]
-
-7) ejecutamos el playbook
-
-- ansible-playbook -i inventory.ini sete.yaml -v
